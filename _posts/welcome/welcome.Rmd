@@ -1,0 +1,65 @@
+---
+title: "COVID-19 Analysis"
+description: |
+  Blog on how I scrapped COVID-19 data and did a visualization of the data.
+author:
+  - name: Joshua Omondi 
+    url: https://joshuasumomondi.netlify.app/
+date: 06-21-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+## I obtained data from:
+[ECDCP](https://www.ecdc.europa.eu/en/publications-data/data-daily-new-cases-covid-19-eueea-country)
+
+# Importing Data
+ I imported the data to R using the following code.
+ 
+```{r}
+library(utils)
+
+data <- read.csv("https://opendata.ecdc.europa.eu/covid19/nationalcasedeath_eueea_daily_ei/csv", na.strings = "", fileEncoding = "UTF-8-BOM")
+```
+ 
+ # Show the data table.
+ 
+```{r}
+library(dplyr)
+library(DT)
+
+edf <- data %>% group_by(countriesAndTerritories) %>% 
+  mutate(DeathRate=sum(deaths)/sum(cases))
+
+datatable(edf, extensions = 'Buttons', options = list(
+  dom='Bfrtip',
+  buttons=c('copy', 'csv', 'excel', 'pdf', 'print')
+))
+```
+ # Graph
+ ## Graph A
+ 
+```{r}
+library(ggplot2)
+edf %>% filter(deaths>100)%>%
+  group_by(countriesAndTerritories)%>%
+  summarise(Deaths_Total=sum(deaths))%>%
+  ggplot(aes(x=countriesAndTerritories)) +
+  geom_point(aes(y=Deaths_Total)) +
+  coord_flip()
+```
+## Graph B
+
+```{r}
+edf %>% filter(deaths>100)%>%
+  group_by(countriesAndTerritories)%>%
+  summarise(Cases_Total=sum(cases))%>%
+  ggplot(aes(x=countriesAndTerritories)) +
+  geom_point(aes(y=Cases_Total)) +
+  coord_flip()
+```
+
+
+
+
+
